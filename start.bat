@@ -7,11 +7,11 @@ echo.
 echo Menjalankan local server di port 3000...
 echo.
 
-where npx >nul 2>nul
+where node >nul 2>nul
 if %ERRORLEVEL% EQU 0 (
-    echo Menggunakan npx serve...
+    echo Menjalankan Node.js server dengan Temp Storage API...
     start http://localhost:3000
-    npx -y serve -l 3000 .
+    node server.js
     goto end
 )
 

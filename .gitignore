@@ -8,6 +8,7 @@ node_modules/
 *.key
 *.pem
 *secret*
+!secrets.example.js
 *apikey*
 *api_key*
 credentials.json
@@ -25,3 +26,8 @@ yarn-error.log*
 .idea/
 *.swp
 *.swo
+
+# Temporary Files
+temp/
+scratch/
+

@@ -4,8 +4,8 @@
   "description": "Aplikasi Web Ringan Transkripsi Live Mikrofon dengan Google Gemini, DeepSeek, Qwen & CFRouter",
   "main": "index.html",
   "scripts": {
-    "start": "npx serve -l 3000 .",
-    "dev": "npx serve -l 3000 ."
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "keywords": ["transcription", "gemini", "deepseek", "qwen", "cfrouter", "speech-to-text"],
   "author": "",

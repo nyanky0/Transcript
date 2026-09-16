@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LiveVoice AI — Live Transcribe & Multi-Model Intelligence</title>
-  <meta name="description" content="Aplikasi transkripsi suara live mikrofon dengan integrasi Google Gemini, DeepSeek, Qwen, dan CFRouter.">
+  <title>Kyo Transmitter — Live Transcribe & Multi-Model Intelligence</title>
+  <meta name="description" content="Kyo Transmitter — Aplikasi transkripsi suara live mikrofon dengan integrasi Google Gemini, DeepSeek, Qwen, dan CFRouter.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -22,46 +22,24 @@
           <span class="pulsing-dot"></span>
         </div>
         <div class="brand-text">
-          <h1>LiveVoice <span class="gradient-text">AI</span></h1>
+          <h1>Kyo <span class="gradient-text">Transmitter</span></h1>
           <p class="subtitle">Live Mic Transcription & Smart Model Router</p>
         </div>
       </div>
 
-      <!-- ACTIVE MODEL SELECTOR QUICK BAR -->
-      <div class="model-quick-selector">
-        <label for="activeModelSelect" class="selector-label">
-          <i data-lucide="cpu" class="icon-small"></i> Active Model:
-        </label>
-        <div class="custom-select-wrapper">
-          <select id="activeModelSelect" class="model-dropdown">
-            <optgroup label="⭐ Google AI (High Quota 500 RPD - Rekomendasi Auto-Polish)">
-              <option value="gemini-3.5-flash-lite" selected>Gemini 3.5 Flash Lite (15 RPM / 500 RPD - Sangat Cepat)</option>
-              <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite (15 RPM / 500 RPD)</option>
-              <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite (10 RPM / 20 RPD)</option>
-            </optgroup>
-            <optgroup label="🧠 Google AI (Flagship & Penalaran Mendalam - Ringkasan & Notula)">
-              <option value="gemini-3.7-flash">Gemini 3.7 Flash (SOTA Reasoning & Notula Rapat)</option>
-              <option value="gemini-3.6-flash">Gemini 3.6 Flash (5 RPM / 20 RPD)</option>
-              <option value="gemini-3.5-flash">Gemini 3.5 Flash (5 RPM / 20 RPD)</option>
-              <option value="gemini-3-flash">Gemini 3 Flash (5 RPM / 20 RPD)</option>
-              <option value="gemini-2.5-flash">Gemini 2.5 Flash (5 RPM / 20 RPD)</option>
-            </optgroup>
-            <optgroup label="🎙️ Google AI (Audio Transcribe & Live API - Unlimited RPD)">
-              <option value="gemini-3.5-transcribe">Gemini 3.5 Transcribe (Audio Multimodal - 25 RPD)</option>
-              <option value="gemini-3.5-transcribe-live">Gemini 3.5 Transcribe Live (Live API - Unlimited RPD)</option>
-              <option value="gemini-2.5-flash-native-audio-dialog">Gemini 2.5 Flash Native Audio (Live API - Unlimited RPD)</option>
-              <option value="gemini-3.5-live-translate">Gemini 3.5 Live Translate (Unlimited RPD)</option>
-            </optgroup>
-            <optgroup label="⚡ CFRouter / Custom API Models">
-              <option value="deepseek-v4-flash-0731">DeepSeek V4 Flash (Pembersihan Cepat & Hemat)</option>
-              <option value="qwen3.8-max">Qwen 3.8 Max (Notula Rapat & Analisis Mendalam)</option>
-              <option value="minimax-m3">MiniMax M3 (Reasoning & Ekstraksi)</option>
-              <option value="glm-5.2">GLM 5.2 (Multibahasa & Teknis)</option>
-              <option value="custom">Model Custom Lainnya...</option>
-            </optgroup>
-          </select>
-          <span id="modelProviderBadge" class="provider-badge google">Google Gemini</span>
+      <!-- DUAL-AGENT ACTIVE STATUS BAR IN HEADER (HIDDEN) -->
+      <div class="dual-agent-header-status" id="headerDualAgentStatus" style="display: none;">
+        <div class="agent-status-tag" id="headerTranscriptAgentTag" title="Agen Panel Kiri: Merapikan & memformat transkrip suara">
+          <i data-lucide="file-text" class="icon-xs"></i>
+          <span class="agent-role-name">Transkrip AI:</span>
+          <strong id="headerTranscriptModelName">DeepSeek V4 Flash</strong>
         </div>
+        <div class="agent-status-tag" id="headerSummaryAgentTag" title="Agen Panel Kanan: Menganalisis, meringkas, dan membuat notula rapat">
+          <i data-lucide="brain-circuit" class="icon-xs"></i>
+          <span class="agent-role-name">Summary AI:</span>
+          <strong id="headerSummaryModelName">Qwen 3.8 27B</strong>
+        </div>
+        <span id="modelProviderBadge" class="provider-badge google">Dual-Agent Siap</span>
       </div>
 
       <!-- MAIN APP TABS -->
@@ -83,6 +61,11 @@
 
       <!-- ACTION BUTTONS -->
       <div class="nav-actions">
+        <button id="btnOpenApiUsage" class="btn btn-secondary" title="Monitor Kuota, Limit RPM/RPD, & Log Penggunaan API">
+          <i data-lucide="activity" class="icon-small text-accent"></i>
+          <span>Log & Kuota API</span>
+          <span id="apiUsageBadge" class="nav-count-badge">0</span>
+        </button>
         <button id="btnOpenSettings" class="btn btn-secondary" title="Konfigurasi API Key & Router">
           <i data-lucide="settings" class="icon-small"></i>
           <span>Pengaturan API</span>
@@ -96,37 +79,76 @@
       <!-- ================= VIEW 1: LIVE TRANSCRIBE ================= -->
       <div id="viewLiveTranscribe" class="view-container active">
         <div class="main-layout">
-          <!-- LEFT PANEL: RECORDING CONTROLS & LIVE TRANSCRIPT -->
-          <section class="transcript-panel">
-            <div class="panel-header">
-              <div class="header-left">
-                <h2 class="panel-title">
-                  <i data-lucide="radio" class="icon-accent"></i> Live Transcription
-                </h2>
-                <span id="liveStatusBadge" class="status-badge idle">
-                  <span class="status-indicator"></span> Standby
-                </span>
+          <!-- LEFT PANEL: TRANSCRIPT STREAM & POLISH AGENT -->
+          <section class="transcript-panel agent-card-panel">
+            <div class="panel-header agent-panel-header">
+              <div class="agent-header-row">
+                <div class="agent-title-info">
+                  <h2 class="panel-title">
+                    <i data-lucide="radio" class="icon-accent"></i> Live Transcript
+                  </h2>
+                  <span id="liveStatusBadge" class="status-badge idle">
+                    <span class="status-indicator"></span> Standby
+                  </span>
+                </div>
+
+                <!-- Transcript Agent Selector -->
+                <div class="panel-agent-box" title="Model AI ini bertugas merapikan tanda baca, membetulkan salah dengar kata (typo), dan memformat transkrip suara">
+                  <span class="agent-badge-label">
+                    <i data-lucide="sparkles" class="icon-xs"></i> AI Polish & Editor:
+                  </span>
+                  <select id="transcriptModelSelect" class="agent-dropdown" title="Pilih Model AI untuk Polish & Pembersihan Transkrip">
+                    <optgroup label="🚀 Localhost Omni Router (:20128 - Super Cepat & Kuota Bebas)">
+                      <option value="combo-gratis" selected>combo-gratis (Gratis & Cepat ~1s — Rekomendasi Default)</option>
+                      <option value="combo-mix">combo-mix (Campuran Cerdas Omni)</option>
+                      <option value="combo-cfr">combo-cfr (Cloudflare Router Omni)</option>
+                    </optgroup>
+                    <optgroup label="⭐ Google AI Gemini (Direkomendasikan - Aktif & Cepat)">
+                      <option value="gemini-3.6-flash">Gemini 3.6 Flash (Sangat Cepat & Akurat)</option>
+                      <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite (Hemat Kuota 500 RPD)</option>
+                      <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite</option>
+                      <option value="gemini-3.5-transcribe">Gemini 3.5 Transcribe</option>
+                    </optgroup>
+                    <optgroup label="⚡ CFRouter (Aktif)">
+                      <option value="solar-pro4">Solar Pro 4 · FREE (Super Cepat ~1s)</option>
+                      <option value="Qwen3.8-27B">Qwen 3.8 27B (Presisi Bahasa ID)</option>
+                      <option value="Qwen3.8-Max">Qwen 3.8 Max (Flagship)</option>
+                      <option value="deepseek-v4-flash-0731">DeepSeek V4 Flash (Server CFRouter Gangguan/Timeout)</option>
+                    </optgroup>
+                    <optgroup label="🎁 Bebas Kuota (FREE Tier Lainnya)">
+                      <option value="apodex-1.1">Apodex 1.1 · FREE</option>
+                      <option value="mistral-small-4">Mistral Small 4 · FREE</option>
+                      <option value="gpt-oss-20b">GPT-OSS 20B · FREE</option>
+                    </optgroup>
+                  </select>
+                  <button id="btnTranscriptAgentConfig" class="btn-icon-subtle" title="Pengaturan Khusus API Key / Base URL Transcript Agent">
+                    <i data-lucide="sliders-horizontal"></i>
+                  </button>
+                </div>
               </div>
 
-              <div class="header-controls">
-                <!-- Language Selector -->
+              <div class="header-sub-controls">
+                <!-- Language Selector (With Bilingual ID + EN Code-Switching) -->
                 <div class="lang-selector">
                   <i data-lucide="languages" class="icon-xs"></i>
-                  <select id="speechLangSelect" class="compact-select">
-                    <option value="id-ID" selected>Bahasa Indonesia</option>
-                    <option value="en-US">English (US)</option>
-                    <option value="en-GB">English (UK)</option>
-                    <option value="ja-JP">Japanese</option>
+                  <select id="speechLangSelect" class="agent-dropdown compact-select" title="Pilih Bahasa Percakapan (Mendukung Campuran Indo-Inggris)">
+                    <option value="bilingual" selected>🇮🇩/🇬🇧 Campuran (Indo + English)</option>
+                    <option value="id-ID">🇮🇩 Bahasa Indonesia Saja</option>
+                    <option value="en-US">🇬🇧 English Only</option>
+                    <option value="ja-JP">🇯🇵 Japanese</option>
                   </select>
                 </div>
                 
-                <!-- Mode Switcher: Web Speech Live vs Direct Gemini Audio Chunks -->
+                <!-- Mode Switcher: Web Speech Live vs Direct Gemini Audio Chunks vs Gemini Live WebSocket -->
                 <div class="mode-pills">
                   <button id="modeLiveSpeech" class="pill-btn active" title="Web Speech Real-Time + AI Post Processing">
                     <i data-lucide="zap" class="icon-xs"></i> Realtime STT
                   </button>
-                  <button id="modeDirectAudio" class="pill-btn" title="Kirim rekaman audio mentah langsung ke Gemini Native Multimodal">
+                  <button id="modeDirectAudio" class="pill-btn" title="Kirim rekaman audio berkala ke Gemini Audio-In (Chunk WebM)">
                     <i data-lucide="audio-lines" class="icon-xs"></i> Gemini Audio-In
+                  </button>
+                  <button id="modeGeminiLive" class="pill-btn" title="⚡ Gemini Multimodal Live API (Bidirectional WebSocket streaming langsung dari mic tanpa tunggu upload)">
+                    <i data-lucide="radio" class="icon-xs"></i> Gemini Live (WS)
                   </button>
                 </div>
               </div>
@@ -162,6 +184,27 @@
                   </button>
                 </div>
 
+                <!-- Mic Preamp & Whisper Sensitivity Booster -->
+                <div class="mic-boost-control" id="micBoostControl" title="Penguat Suara Pelan & Bisikan (Software Preamp + Dynamic Compressor)">
+                  <i data-lucide="zap" class="icon-tiny text-accent"></i>
+                  <select id="micGainSelect" class="compact-gain-select" title="Penguat Sensitivitas Suara Pelan">
+                    <option value="1.0">Gain: Normal (1.0x)</option>
+                    <option value="2.0" selected>⚡ Penguat Suara Pelan (2.0x / +6dB)</option>
+                    <option value="3.5">🚀 Ultra Whisper Boost (3.5x / +11dB)</option>
+                  </select>
+                </div>
+
+                <!-- Browser Noise Gate (Noise Suppression) Toggle -->
+                <div class="noise-gate-control" id="noiseGateControl" title="Toggle Noise Gate Browser: Matikan (OFF) agar suara pelan/bisikan tidak dipotong Chrome. Aktifkan (ON) jika ruangan Anda bising kipas/AC.">
+                  <label class="compact-switch-label" for="chkNoiseSuppression">
+                    <span class="switch-ui">
+                      <input type="checkbox" id="chkNoiseSuppression">
+                      <span class="switch-slider"></span>
+                    </span>
+                    <span class="switch-title" id="noiseGateStatusLabel">Noise Gate: OFF (Peka Bisikan)</span>
+                  </label>
+                </div>
+
                 <!-- Desktop Sound Sub-bar -->
                 <div id="desktopSourceControls" class="source-subcontrol hidden">
                   <button id="btnSelectDesktopAudio" class="btn btn-sm btn-accent-gradient">
@@ -174,9 +217,35 @@
               </div>
             </div>
 
-            <!-- AUDIO WAVE VISUALIZER & MIC BAR -->
+            <!-- REAL-TIME AUDIO WAVE MONITOR & CONTROLS -->
             <div class="visualizer-container">
-              <canvas id="audioVisualizer" class="audio-canvas"></canvas>
+              <div class="wave-monitor-panel">
+                <div class="wave-header-row">
+                  <div id="audioLiveStatusBadge" class="audio-detect-badge standby">
+                    <span class="pulsing-wave-dot"></span>
+                    <span id="audioLiveStatusText">Mikrofon Standby</span>
+                  </div>
+                  <div class="wave-metric-group">
+                    <span id="audioDbLevelText" class="db-readout">-∞ dB</span>
+                  </div>
+                </div>
+                <!-- Discord-style Voice Input Sensitivity Level Bar -->
+                <div class="discord-mic-meter-container" title="Indikator Level Suara Mikrofon (Sensitivitas Input)">
+                  <div class="discord-mic-meter-track">
+                    <div id="volumeLevelBar" class="discord-mic-meter-fill"></div>
+                  </div>
+                </div>
+                <canvas id="audioVisualizer" class="audio-wave-canvas" style="display: none;"></canvas>
+                
+                <!-- AUDIO MARKER TIMELINE STRIP (Windows Voice Recorder Style) -->
+                <div id="audioMarkerStrip" class="audio-marker-strip hidden">
+                  <span class="marker-strip-label">
+                    <i data-lucide="flag" class="icon-xs"></i> Penanda:
+                  </span>
+                  <div id="markerChipsList" class="marker-chips-list"></div>
+                </div>
+              </div>
+
               <div class="mic-controls">
                 <button id="btnToggleRecord" class="btn btn-record" aria-label="Mulai Merekam">
                   <div class="record-icon-wrapper">
@@ -188,57 +257,150 @@
                   </div>
                 </button>
 
-                <div class="mic-volume-meter">
-                  <i data-lucide="volume-2" class="icon-xs"></i>
-                  <div class="meter-bar-track">
-                    <div id="volumeLevelBar" class="meter-bar-fill"></div>
-                  </div>
-                </div>
+                <!-- ADD MARKER BUTTON (WINDOWS RECORDER STYLE) -->
+                <button id="btnAddAudioMarker" class="btn btn-marker" title="Tambahkan Penanda Waktu Audio (Windows Voice Recorder Style) [Shortcut: M]">
+                  <i data-lucide="flag" class="icon-small"></i>
+                  <span id="markerBtnLabel">Tandai</span>
+                </button>
 
                 <div class="transcript-quick-actions">
-                  <button id="btnSaveLiveToHistory" class="btn-icon" title="Simpan Sesi Ini ke Riwayat Transkrip">
+                  <button id="btnSaveLiveToHistory" class="btn-icon" style="display: none;" title="Simpan Sesi Ini ke Riwayat Transkrip (Otomatis Aktif)">
                     <i data-lucide="bookmark-plus"></i>
+                  </button>
+                  <button id="btnDownloadRecordedAudio" class="btn-icon btn-download-audio" title="Simpan & Unduh Berkas Audio Rekaman (.webm)">
+                    <i data-lucide="music"></i>
                   </button>
                   <button id="btnClearTranscript" class="btn-icon" title="Hapus Transkrip">
                     <i data-lucide="trash-2"></i>
                   </button>
-                  <button id="btnCopyTranscript" class="btn-icon" title="Salin Teks">
+                  <button id="btnCopyTranscript" class="btn-icon" title="Salin Seluruh Percakapan">
                     <i data-lucide="copy"></i>
                   </button>
-                  <button id="btnExportTranscript" class="btn-icon" title="Unduh File (TXT/MD)">
+                  <button id="btnExportTranscript" class="btn-icon" title="Unduh File (TXT/MD/Audio)">
                     <i data-lucide="download"></i>
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- TRANSCRIPT OUTPUT BOX -->
+            <!-- UNIFIED CONTINUOUS TRANSCRIPT CONTAINER -->
             <div class="transcript-box-container">
               <div id="transcriptOutput" class="transcript-output" tabindex="0">
                 <div class="empty-state" id="emptyStatePrompt">
                   <div class="empty-icon-circle">
-                    <i data-lucide="mic-off" class="empty-icon"></i>
+                    <i data-lucide="file-text" class="empty-icon"></i>
                   </div>
-                  <h3>Mikrofon Belum Aktif</h3>
-                  <p>Klik tombol <strong>"Mulai Transkripsi Live"</strong> untuk mulai berbicara. Kata-kata Anda akan muncul secara instan di sini.</p>
+                  <h3>Transkrip Suara Siap</h3>
+                  <p>Klik <strong>"Mulai Transkripsi Live"</strong> dan mulailah berbicara. Hasil ucapan akan tertulis mengalir sebagai satu kesatuan teks utuh secara real-time.</p>
                   <div class="quick-hints">
-                    <span>💡 <strong>Tips:</strong> Anda dapat beralih model AI kapan saja untuk merapikan teks atau membuat ringkasan.</span>
+                    <span>💡 <strong>Format Bersih:</strong> Semua percakapan menyatu langsung dalam satu teks tanpa bubble, rapi dan mudah disalin kapan saja.</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Direct Audio Recording Progress (when Gemini Audio-In mode is active) -->
+              <!-- Direct Audio Recording Banner with Collapsible Details -->
               <div id="directAudioProgress" class="direct-audio-banner hidden">
-                <div class="audio-banner-content">
-                  <i data-lucide="sparkles" class="spin-icon"></i>
-                  <div>
-                    <strong>Mode Gemini Audio Native Aktif:</strong>
-                    <p>Merekam audio mikrofon mentah. Klik "Selesai & Transkrip" untuk mengirim audio langsung ke Gemini.</p>
+                <div class="audio-banner-top-bar" id="audioBannerTopBar">
+                  <div class="audio-banner-summary" id="btnToggleAudioBanner" title="Klik untuk sembunyikan/tampilkan panel audio">
+                    <span class="pulse-indicator-red"></span>
+                    <span class="banner-title-text">Gemini Audio-In</span>
+                    <span class="banner-badge-subtext">(Continuous Stream)</span>
+                    <div class="stream-mini-circle-wrap" id="streamMiniCircleWrap" title="Countdown Auto-Stream ke Gemini">
+                      <svg class="stream-circle-svg" width="16" height="16" viewBox="0 0 20 20">
+                        <circle class="circle-bg" cx="10" cy="10" r="7.5"></circle>
+                        <circle id="streamCircleMeter" class="circle-meter" cx="10" cy="10" r="7.5"></circle>
+                      </svg>
+                      <span id="streamMiniCountdown" class="stream-mini-countdown">30s</span>
+                    </div>
+                    <button class="btn-icon-subtle btn-collapse-toggle" type="button" aria-label="Toggle Panel">
+                      <i data-lucide="chevron-up" id="audioBannerChevron" class="icon-tiny"></i>
+                    </button>
+                  </div>
+                  
+                  <div class="audio-banner-actions">
+                    <div class="auto-stream-control-group">
+                      <label class="auto-send-toggle-label" title="Secara otomatis memotong dan mengirim rekaman audio berkala ke Gemini">
+                        <input type="checkbox" id="chkAutoSendGeminiAudio" checked>
+                        <span>Auto</span>
+                      </label>
+                      <select id="autoStreamIntervalSelect" class="compact-interval-select" title="Atur durasi potongan audio (default 30s agar pembicara & kalimat utuh)">
+                        <option value="15">15s</option>
+                        <option value="30" selected>30s</option>
+                        <option value="45">45s</option>
+                        <option value="60">60s</option>
+                      </select>
+                    </div>
+                    <button id="btnProcessDirectAudio" class="btn btn-tiny btn-primary" title="Kirim rekaman audio saat ini ke Gemini">
+                      <i data-lucide="send" class="icon-tiny"></i> Kirim
+                    </button>
+                    <button id="btnViewGeminiAudioLogs" class="btn btn-tiny btn-secondary" title="Lihat log pengiriman audio & error Gemini">
+                      <i data-lucide="terminal" class="icon-tiny"></i> Log
+                    </button>
+                    <button id="btnViewAudioInHistory" class="btn btn-tiny btn-secondary" title="Lihat riwayat potongan transkripsi di temp/audio_in">
+                      <i data-lucide="history" class="icon-tiny"></i> Riwayat
+                    </button>
+                    <button id="btnOpenAudioInFolderQuick" class="btn btn-tiny btn-secondary" title="Buka folder temp/audio_in di Windows Explorer">
+                      <i data-lucide="folder-open" class="icon-tiny"></i> Folder
+                    </button>
                   </div>
                 </div>
-                <button id="btnProcessDirectAudio" class="btn btn-sm btn-primary">
-                  <i data-lucide="send"></i> Transkrip Sekarang
-                </button>
+
+                <!-- Auto-Stream 15s Countdown / Loading Bar -->
+                <div id="audioStreamProgressWrapper" class="audio-stream-progress-wrapper">
+                  <div class="stream-progress-header">
+                    <div class="stream-progress-status">
+                      <span id="streamPulseDot" class="stream-pulse-dot"></span>
+                      <span id="audioStreamStatusText">Auto-Stream siap (potongan dikirim tiap 15 detik)</span>
+                    </div>
+                    <span id="audioStreamCountdownText" class="stream-countdown-badge">15s</span>
+                  </div>
+                  <div class="stream-progress-track">
+                    <div id="audioStreamProgressBar" class="stream-progress-fill" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <!-- Collapsible Details Body -->
+                <div id="audioBannerDetailsBody" class="audio-banner-details-body">
+                  <p class="audio-banner-desc">Mikrofon terus merekam suara Anda tanpa henti. Potongan audio dikonversi dengan container WebM ber-header sah untuk diproses Gemini Multimodal.</p>
+                  <div class="audio-model-select-inline">
+                    <label for="geminiAudioModelSelect"><i data-lucide="cpu" class="icon-xs"></i> Model Audio-In:</label>
+                    <select id="geminiAudioModelSelect" class="agent-dropdown compact-select" title="Pilih Model Google Gemini untuk Audio-In">
+                      <option value="gemini-3.5-transcribe-live">⚡ Gemini 3.5 Transcribe Live (Live WS Streaming)</option>
+                      <option value="gemini-3.5-live-translate-preview">⚡ Gemini 3.5 Live Translate (Live WS Streaming)</option>
+                      <option value="gemini-3.5-transcribe">Gemini 3.5 Transcribe (Audio Native — Khusus Suara)</option>
+                      <option value="gemini-3.6-flash" selected>Gemini 3.6 Flash (Tercepat & Akurat)</option>
+                      <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite (Hemat Kuota 500 RPD)</option>
+                      <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                      <option value="gemini-3.7-flash">Gemini 3.7 Flash (SOTA)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Gemini Multimodal Live API (WebSocket Streaming) Banner -->
+              <div id="geminiLiveProgress" class="direct-audio-banner gemini-live-banner hidden">
+                <div class="audio-banner-top-bar">
+                  <div class="audio-banner-summary">
+                    <span id="geminiLiveWsDot" class="stream-pulse-dot" style="background: #eab308;"></span>
+                    <span class="banner-title-text">⚡ Gemini Live Streaming</span>
+                    <span id="geminiLiveWsStatus" class="banner-badge-subtext" style="color: #fde047;">Standby</span>
+                  </div>
+                  <div class="audio-banner-actions">
+                    <div class="audio-model-select-inline" style="margin: 0;">
+                      <label for="geminiLiveModelSelect"><i data-lucide="cpu" class="icon-xs"></i> Model Live:</label>
+                      <select id="geminiLiveModelSelect" class="agent-dropdown compact-select" title="Pilih Model Multimodal Live API">
+                        <option value="gemini-3.5-transcribe-live" selected>Gemini 3.5 Transcribe Live (gemini-3.5-transcribe-live)</option>
+                        <option value="gemini-3.5-live-translate-preview">Gemini 3.5 Live Translate (gemini-3.5-live-translate-preview)</option>
+                        <option value="gemini-2.5-flash-native-audio-latest">Gemini 2.5 Flash Native Audio Latest</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="audio-banner-details-body" style="padding-top: 4px;">
+                  <p class="audio-banner-desc">
+                    🎤 Suara PCM 16kHz dialirkan langsung tanpa jeda (bidirectional WebSocket). Teks hasil transkripsi muncul seketika secara real-time kata-per-kata tanpa perlu upload potongan berkas.
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -259,33 +421,155 @@
             </div>
           </section>
 
-          <!-- RIGHT PANEL: AI INTELLIGENCE & PROCESSING -->
-          <section class="ai-processing-panel">
-            <div class="panel-header">
-              <div class="header-left">
-                <h2 class="panel-title">
-                  <i data-lucide="sparkles" class="icon-accent"></i> AI Intelligence Hub
-                </h2>
+          <!-- RIGHT PANEL: SUMMARY & NOTULA INTELLIGENCE AGENT -->
+          <section class="ai-processing-panel agent-card-panel">
+            <div class="panel-header agent-panel-header">
+              <div class="agent-header-row">
+                <div class="agent-title-info">
+                  <h2 class="panel-title">
+                    <i data-lucide="brain-circuit" class="icon-accent"></i> Summary & Intelligence
+                  </h2>
+                  <span id="aiModelUsedBadge" class="tag-model" style="display: none;">Siap</span>
+                </div>
+
+                <!-- Summary Agent Selector -->
+                <div class="panel-agent-box">
+                  <span class="agent-badge-label">
+                    <i data-lucide="bot" class="icon-xs"></i> Summary Agent:
+                  </span>
+                  <select id="summaryModelSelect" class="agent-dropdown" title="Pilih Model untuk Ringkasan & Notula Rapat">
+                    <optgroup label="🚀 Localhost Omni Router (:20128 - Super Cepat & Kuota Bebas)">
+                      <option value="combo-gratis" selected>combo-gratis (Gratis & Cepat ~1s — Rekomendasi Default)</option>
+                      <option value="combo-mix">combo-mix (Campuran Cerdas Omni)</option>
+                      <option value="combo-cfr">combo-cfr (Cloudflare Router Omni)</option>
+                    </optgroup>
+                    <optgroup label="🧠 CFRouter Flagship (Penalaran & Notula Mendalam)">
+                      <option value="Qwen3.8-Max">Qwen 3.8 Max (Flagship Multimodal & Notula)</option>
+                      <option value="Qwen3.8-27B">Qwen 3.8 27B (Presisi Tinggi & Keputusan)</option>
+                      <option value="MiniMax-M3">MiniMax M3 (Konteks Panjang & Dialog)</option>
+                      <option value="MiniMax-M2.7">MiniMax M2.7 (Action Items & Tugas)</option>
+                      <option value="dots-3-note">Rednote Dots 3 Note (Spesialis Notula)</option>
+                      <option value="mistral-medium-3-5">Mistral Medium 3.5 (Formal)</option>
+                      <option value="glm-5.2">GLM 5.2 (Multibahasa & Teknis)</option>
+                    </optgroup>
+                    <optgroup label="🧠 Google AI (Penalaran & Flagship)">
+                      <option value="gemini-3.6-flash">Gemini 3.6 Flash (Flagship Cepat & Presisi)</option>
+                      <option value="gemini-3.7-flash">Gemini 3.7 Flash (SOTA Reasoning)</option>
+                      <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
+                      <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite</option>
+                    </optgroup>
+                    <optgroup label="🎁 Bebas Token (FREE Tier)">
+                      <option value="solar-pro4">Solar Pro 4 · FREE</option>
+                      <option value="mistral-small-4">Mistral Small 4 · FREE</option>
+                      <option value="gpt-oss-20b">GPT-OSS 20B · FREE</option>
+                      <option value="apodex-1.1">Apodex 1.1 · FREE</option>
+                    </optgroup>
+                  </select>
+                  <button id="btnSummaryAgentConfig" class="btn-icon-subtle" title="Pengaturan Khusus API Key / Base URL Summary Agent">
+                    <i data-lucide="sliders-horizontal"></i>
+                  </button>
+                </div>
               </div>
-              
-              <div class="active-engine-badge">
-                <span id="engineBadgeText">Engine: Gemini 3.5 Flash Lite</span>
+
+              <div class="active-engine-badge" style="display: none;">
+                <span id="engineBadgeText">Engine: Qwen 3.8 Max</span>
+              </div>
+            </div>
+
+            <!-- SUMMARY INPUT SOURCE SELECTOR -->
+            <div class="summary-source-box">
+              <div class="summary-source-header">
+                <span class="source-label"><i data-lucide="file-input" class="icon-tiny"></i> Sumber Teks:</span>
+                <div class="source-switch-group">
+                  <button type="button" class="source-tab-btn active" data-source="live" id="srcTabLive" title="Gunakan transkrip percakapan aktif saat ini">
+                    <i data-lucide="radio" class="icon-tiny"></i> Transkrip Aktif
+                  </button>
+                  <button type="button" class="source-tab-btn" data-source="file" id="srcTabFile" title="Unggah berkas dokumen .md atau .txt dari komputer">
+                    <i data-lucide="file-up" class="icon-tiny"></i> Unggah .md / .txt
+                  </button>
+                  <button type="button" class="source-tab-btn" data-source="recent" id="srcTabRecent" title="Pilih dari riwayat transkrip yang tersimpan">
+                    <i data-lucide="history" class="icon-tiny"></i> Riwayat Transkrip
+                  </button>
+                </div>
+              </div>
+
+              <!-- Upload File Sub-Panel (Support Multi-File) -->
+              <div id="sourcePanelFile" class="source-detail-panel hidden">
+                <div class="file-upload-dropzone" id="summaryDropzone">
+                  <input type="file" id="summaryFileInput" accept=".md,.txt,.markdown,.log" multiple class="hidden">
+                  <i data-lucide="upload-cloud" class="dropzone-icon"></i>
+                  <div class="dropzone-text">
+                    <span class="dropzone-main">Klik atau seret <strong>satu atau lebih berkas .md / .txt</strong> ke sini</span>
+                    <span class="dropzone-sub">Dokumen akan digabungkan untuk diringkas atau dibuatkan notula</span>
+                  </div>
+                  <button type="button" class="btn btn-xs btn-secondary" id="btnBrowseSummaryFile">
+                    <i data-lucide="folder-plus" class="icon-tiny"></i> Pilih Berkas (Bisa Banyak)
+                  </button>
+                </div>
+                <!-- File Chips / Selected Files List -->
+                <div id="summaryFilesListContainer" class="summary-files-chips hidden"></div>
+              </div>
+
+              <!-- Recent Transcript History Sub-Panel (Support Multi-Select) -->
+              <div id="sourcePanelRecent" class="source-detail-panel hidden">
+                <div class="recent-multiselect-box">
+                  <div class="recent-multiselect-header">
+                    <div class="recent-search-wrap">
+                      <i data-lucide="search" class="icon-tiny text-muted"></i>
+                      <input type="text" id="recentSessionSearch" placeholder="Cari sesi transkrip..." class="recent-search-input" autocomplete="off">
+                    </div>
+                    <div class="recent-actions-mini">
+                      <button type="button" id="btnSelectAllRecent" class="btn-text-tiny" title="Pilih Semua Sesi">Pilih Semua</button>
+                      <span class="sep">·</span>
+                      <button type="button" id="btnClearRecentSelection" class="btn-text-tiny" title="Batal Pilih">Batal</button>
+                      <button type="button" id="btnRefreshRecentSessions" class="btn-icon-subtle" title="Segarkan Riwayat">
+                        <i data-lucide="refresh-cw" class="icon-tiny"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Scrollable Checklist of Sessions -->
+                  <div id="recentSessionsChecklist" class="recent-checklist-box">
+                    <!-- Populated dynamically with checkboxes -->
+                  </div>
+
+                  <!-- Footer Summary of Selection -->
+                  <div id="recentSelectionFooter" class="recent-selection-footer hidden">
+                    <span id="recentSelectionSummaryText" class="selection-count-label">0 sesi dipilih</span>
+                    <button type="button" id="btnApplyRecentSelection" class="btn btn-xs btn-primary">
+                      <i data-lucide="check" class="icon-tiny"></i> Gunakan Sesi Terpilih
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Active Source Status Pill -->
+              <div id="activeSourceStatusPill" class="active-source-pill hidden">
+                <div class="source-pill-info">
+                  <i data-lucide="file-check" class="icon-xs text-accent"></i>
+                  <span class="source-pill-type" id="activeSourceType">Berkas:</span>
+                  <strong class="source-pill-name" id="activeSourceName">filename.md</strong>
+                  <span class="source-pill-meta" id="activeSourceMeta">0 kata</span>
+                </div>
+                <button type="button" id="btnResetToLiveSource" class="btn-icon-tiny" title="Kembali ke Transkrip Percakapan Aktif">
+                  <i data-lucide="x"></i>
+                </button>
               </div>
             </div>
 
             <!-- AI ACTION TOOLBAR -->
             <div class="ai-actions-toolbar">
-              <button id="btnPolishText" class="ai-action-btn" data-action="polish" title="Perbaiki ejaan typo fonetik, kapitalisasi, tanda baca, & formatting">
-                <i data-lucide="wand-2"></i>
-                <span>Rapikan & Perbaiki</span>
-              </button>
-              <button id="btnSummarize" class="ai-action-btn" data-action="summarize" title="Buat Ringkasan Eksekutif & Poin Penting">
+              <button id="btnSummarize" class="ai-action-btn primary-action" data-action="summarize" title="Buat Ringkasan Eksekutif & Poin Penting secara instan">
                 <i data-lucide="file-text"></i>
                 <span>Ringkasan Eksekutif</span>
               </button>
               <button id="btnActionItems" class="ai-action-btn" data-action="action-items" title="Ekstraksi Notula Rapat & Daftar Tugas / Action Items">
                 <i data-lucide="check-square"></i>
                 <span>Notula & To-Do List</span>
+              </button>
+              <button id="btnPolishText" class="ai-action-btn" data-action="polish" title="Perbaiki ejaan typo fonetik, kapitalisasi, tanda baca, & formatting">
+                <i data-lucide="wand-2"></i>
+                <span>Rapikan Transkrip</span>
               </button>
               <button id="btnCustomPrompt" class="ai-action-btn" data-action="custom" title="Instruksi Khusus ke Model Terpilih">
                 <i data-lucide="message-square-plus"></i>
@@ -295,7 +579,7 @@
 
             <!-- CUSTOM PROMPT INPUT (Collapsible) -->
             <div id="customPromptBox" class="custom-prompt-container hidden">
-              <textarea id="customPromptInput" placeholder="Ketik instruksi khusus untuk model AI (cth: 'Ubah menjadi format email formal untuk klien')..."></textarea>
+              <textarea id="customPromptInput" placeholder="Ketik instruksi khusus untuk model AI (cth: 'Ubah menjadi format email resmi kepada dewan direksi')..."></textarea>
               <button id="btnRunCustomPrompt" class="btn btn-sm btn-primary">
                 <i data-lucide="play"></i> Jalankan Prompt
               </button>
@@ -307,14 +591,25 @@
                 <div class="result-title-group">
                   <i data-lucide="cpu" class="icon-small"></i>
                   <span id="aiResultTitle">Hasil Pengolahan AI</span>
-                  <span id="aiModelUsedBadge" class="tag-model">Siap</span>
                 </div>
                 <div class="card-actions">
+                  <button id="btnOpenSummaryHistory" class="btn-icon-subtle btn-temp-history" title="Buka Riwayat Summary di Folder Temp">
+                    <i data-lucide="archive"></i>
+                    <span>Riwayat Temp (<span id="tempSummaryCountBadge">0</span>)</span>
+                  </button>
+                  <button id="btnOpenTempFolder" class="btn-icon-subtle" title="Buka Folder temp/summaries di Windows Explorer">
+                    <i data-lucide="folder-open"></i>
+                    <span>Buka Folder</span>
+                  </button>
                   <button id="btnApplyPolishToTranscript" class="btn-icon-subtle hidden" title="Terapkan teks yang telah dirapikan ke transkrip utama">
                     <i data-lucide="arrow-left-right"></i> Ganti Transkrip
                   </button>
+                  <button id="btnToggleNotepadView" class="btn-icon-subtle" title="Beralih ke Tampilan Format Notepad / Teks Bersih">
+                    <i data-lucide="file-text"></i>
+                    <span id="notepadViewToggleLabel">Mode Notepad</span>
+                  </button>
                   <button id="btnCopyAIResult" class="btn-icon-subtle" title="Salin Hasil AI">
-                    <i data-lucide="copy"></i>
+                    <i data-lucide="copy"></i> Salin
                   </button>
                   <button id="btnClearAIResult" class="btn-icon-subtle" title="Bersihkan">
                     <i data-lucide="rotate-ccw"></i>
@@ -332,9 +627,9 @@
                 <!-- Result Display -->
                 <div id="aiOutputContent" class="ai-markdown-output">
                   <div class="empty-ai-state">
-                    <i data-lucide="bot" class="large-ghost-icon"></i>
+                    <i data-lucide="sparkles" class="large-ghost-icon"></i>
                     <h4>Pilih Tugas AI di Atas</h4>
-                    <p>Klik <strong>Rapikan & Perbaiki</strong>, <strong>Ringkasan Eksekutif</strong>, atau <strong>Notula & To-Do List</strong> untuk mengolah teks transkrip dengan model yang dipilih.</p>
+                    <p>Klik <strong>Ringkasan Eksekutif</strong> atau <strong>Notula & To-Do List</strong> kapan saja. Hasil akan diproses di latar belakang tanpa menghentikan transkripsi live.</p>
                   </div>
                 </div>
               </div>
@@ -377,6 +672,15 @@
                   <h3>Tarik & Lepas Berkas Audio ke Sini</h3>
                   <p>atau <button type="button" id="btnBrowseAudio" class="btn-link">Pilih berkas dari komputer</button></p>
                   <span class="drop-formats">Format didukung: MP3, WAV, M4A, WEBM, FLAC, OGG, AAC</span>
+                  
+                  <div class="upload-quick-sources">
+                    <button type="button" id="btnUseLastRecordingInUpload" class="btn btn-secondary btn-sm" title="Pakai berkas audio rekaman dari sesi transkrip live saat ini">
+                      <i data-lucide="mic" class="icon-tiny"></i> Pakai Rekaman Sesi Terakhir
+                    </button>
+                    <button type="button" id="btnOpenRecordingsFolder" class="btn btn-secondary btn-sm" title="Buka folder temp/recordings di Windows Explorer">
+                      <i data-lucide="folder-open" class="icon-tiny"></i> Folder Rekaman
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -405,8 +709,10 @@
                   <div class="form-group">
                     <label for="uploadModelSelect">Model AI Transkripsi:</label>
                     <select id="uploadModelSelect" class="form-input">
-                      <option value="gemini-3.5-transcribe" selected>Gemini 3.5 Transcribe (Audio Native - Terbaik & Presisi)</option>
-                      <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite (Cepat & Hemat Kuota 500 RPD)</option>
+                      <option value="gemini-3.5-transcribe" selected>Gemini 3.5 Transcribe (Audio Native — Khusus Transkripsi Suara)</option>
+                      <option value="gemini-3.6-flash">Gemini 3.6 Flash (Rekomendasi: Cepat, Akurat & Diarization)</option>
+                      <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite (Hemat Kuota 500 RPD)</option>
+                      <option value="gemini-2.5-flash">Gemini 2.5 Flash (Kapasitas Audio Besar)</option>
                       <option value="gemini-3.7-flash">Gemini 3.7 Flash (Penalaran Flagship & Diarization)</option>
                     </select>
                   </div>
@@ -495,6 +801,29 @@
             </div>
           </div>
 
+          <!-- Batch Action Bar when cards are selected -->
+          <div id="historyBatchActionBar" class="history-batch-bar hidden">
+            <div class="batch-bar-left">
+              <label class="custom-checkbox-wrap">
+                <input type="checkbox" id="chkSelectAllHistory">
+                <span class="batch-select-label">Pilih Semua</span>
+              </label>
+              <span class="batch-divider">|</span>
+              <span id="historySelectedCountBadge" class="batch-count-badge">0 sesi dipilih</span>
+            </div>
+            <div class="batch-bar-actions">
+              <button type="button" id="btnBatchSummarizeHistory" class="btn btn-sm btn-primary" title="Gabungkan dan ringkas sesi yang dipilih">
+                <i data-lucide="sparkles" class="icon-tiny"></i> Ringkas dengan AI
+              </button>
+              <button type="button" id="btnBatchExportHistory" class="btn btn-sm btn-secondary" title="Unduh semua sesi terpilih menjadi 1 berkas Markdown">
+                <i data-lucide="download" class="icon-tiny"></i> Gabung & Unduh .md
+              </button>
+              <button type="button" id="btnBatchDeleteHistory" class="btn btn-sm btn-danger" title="Hapus sesi yang dipilih">
+                <i data-lucide="trash-2" class="icon-tiny"></i> Hapus Terpilih
+              </button>
+            </div>
+          </div>
+
           <!-- History Content Container -->
           <div class="history-content-body">
             <div id="historyListContainer" class="history-cards-grid">
@@ -528,7 +857,10 @@
 
         <div class="modal-body">
           <div class="modal-tabs">
-            <button class="tab-btn active" data-tab="tab-gemini">
+            <button class="tab-btn active" data-tab="tab-omnirouter">
+              <i data-lucide="cpu"></i> Omni Router (:20128)
+            </button>
+            <button class="tab-btn" data-tab="tab-gemini">
               <i data-lucide="sparkles"></i> Google Gemini API
             </button>
             <button class="tab-btn" data-tab="tab-cfrouter">
@@ -536,8 +868,63 @@
             </button>
           </div>
 
+          <!-- TAB: OMNI ROUTER (LOCALHOST :20128) -->
+          <div id="tab-omnirouter" class="tab-content active">
+            <div class="form-group">
+              <label for="omniBaseUrl">Omni Router Base URL (Localhost)</label>
+              <div class="input-with-action">
+                <input type="text" id="omniBaseUrl" placeholder="http://localhost:20128/v1" autocomplete="off" value="http://localhost:20128/v1">
+                <button type="button" id="btnResetOmniUrl" class="btn-icon" title="Reset ke Default (http://localhost:20128/v1)">
+                  <i data-lucide="rotate-ccw"></i>
+                </button>
+              </div>
+              <small class="form-hint">
+                Port Omni Router aktif di <code>http://localhost:20128/v1</code>
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label for="omniApiKey">Omni Router API Key</label>
+              <div class="input-with-action">
+                <input type="password" id="omniApiKey" placeholder="sk-..." autocomplete="off">
+                <button type="button" class="btn-toggle-pwd" data-target="omniApiKey" title="Lihat/Sembunyikan Kunci">
+                  <i data-lucide="eye"></i>
+                </button>
+                <button type="button" id="btnAutoDetectOmniKey" class="btn btn-secondary btn-sm" title="Deteksi otomatis API Key dari ~/.omniroute/omniroute-api-key.txt">
+                  <i data-lucide="scan"></i> Auto-Detect
+                </button>
+              </div>
+              <small class="form-hint">
+                Kunci API lokal tersimpan di <code>~/.omniroute/omniroute-api-key.txt</code>
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label for="omniDefaultModel">Preset Model Omni</label>
+              <select id="omniDefaultModel" class="form-input">
+                <option value="combo-gratis" selected>combo-gratis (Gratis & Cepat ~1s — Rekomendasi Default)</option>
+                <option value="combo-mix">combo-mix (Campuran Cerdas Omni)</option>
+                <option value="combo-cfr">combo-cfr (Cloudflare Router Omni)</option>
+              </select>
+            </div>
+
+            <div class="test-connection-box" style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+              <button type="button" id="btnTestOmniConnection" class="btn btn-secondary btn-sm">
+                <i data-lucide="activity"></i> Tes Koneksi Omni Router
+              </button>
+              <div id="omniConnectionStatus" class="connection-status-pill hidden"></div>
+            </div>
+
+            <div class="info-alert" style="margin-top: 12px;">
+              <i data-lucide="zap"></i>
+              <div>
+                <strong>Omni Router Localhost:</strong> Berjalan di <code>localhost:20128</code>. Menyediakan akses instan ke model <strong>combo-gratis</strong>, <strong>combo-mix</strong>, dan <strong>combo-cfr</strong> dengan latensi kilat (~1s) dan tanpa limit kuota harian.
+              </div>
+            </div>
+          </div>
+
           <!-- TAB: GOOGLE GEMINI -->
-          <div id="tab-gemini" class="tab-content active">
+          <div id="tab-gemini" class="tab-content">
             <div class="form-group">
               <label for="geminiApiKey">Google AI / Gemini API Key</label>
               <div class="input-with-action">
@@ -554,11 +941,11 @@
             <div class="form-group">
               <label for="geminiDefaultModel">Default Gemini Model</label>
               <select id="geminiDefaultModel" class="form-input">
-                <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Rekomendasi Utama: 500 RPD, latensi terendah)</option>
+                <option value="gemini-3.6-flash" selected>gemini-3.6-flash (Rekomendasi Utama: Tercepat, Cerdas, Terverifikasi)</option>
+                <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (500 RPD, latensi rendah)</option>
                 <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite (500 RPD, stabil)</option>
-                <option value="gemini-3.7-flash">gemini-3.7-flash (Flagship: Penalaran & Notula terbaik)</option>
+                <option value="gemini-3.7-flash">gemini-3.7-flash (Penalaran & Notula terbaik)</option>
                 <option value="gemini-3.5-transcribe">gemini-3.5-transcribe (Khusus Transkripsi Audio)</option>
-                <option value="gemini-2.5-flash">gemini-2.5-flash</option>
               </select>
             </div>
 
@@ -574,9 +961,9 @@
           <div id="tab-cfrouter" class="tab-content">
             <div class="form-group">
               <label for="cfrouterBaseUrl">API Base URL (OpenAI-compatible / CFRouter)</label>
-              <input type="text" id="cfrouterBaseUrl" placeholder="https://api.your-router.com/v1" autocomplete="off">
+              <input type="text" id="cfrouterBaseUrl" placeholder="https://api.cfrouter.my.id/v1" autocomplete="off">
               <small class="form-hint">
-                Contoh: <code>https://api.openai.com/v1</code> atau endpoint router Cloudflare / OpenRouter / Custom Gateway Anda.
+                Template default: <code>https://api.cfrouter.my.id/v1</code>
               </small>
             </div>
 
@@ -588,20 +975,23 @@
                   <i data-lucide="eye"></i>
                 </button>
               </div>
+              <small class="form-hint">
+                Kunci template telah disiapkan (<code>sk-8eb6f4...</code>) untuk langsung digunakan.
+              </small>
             </div>
 
             <div class="form-group">
               <label for="customModelNameInput">Custom Model Identifier</label>
-              <input type="text" id="customModelNameInput" placeholder="deepseek-v4-flash-0731 atau qwen3.8-max">
+              <input type="text" id="customModelNameInput" placeholder="deepseek-v4-flash-0731 atau Qwen3.8-Max">
               <small class="form-hint">
-                Model rekomendasi: <code>deepseek-v4-flash-0731</code>, <code>qwen3.8-max</code>, <code>minimax-m3</code>, <code>glm-5.2</code>.
+                Pilihan transcripting: <code>deepseek-v4-flash-0731</code> (cepat), <code>Qwen3.8-Max</code> (notula), <code>mistral-small-4</code> (FREE), <code>solar-pro4</code> (FREE).
               </small>
             </div>
 
             <div class="info-alert">
               <i data-lucide="zap"></i>
               <div>
-                <strong>Catatan CFRouter:</strong> Model teks (DeepSeek/Qwen) memproses hasil live Speech-to-Text browser untuk membersihkan typo fonetik, memisahkan dialog, dan merangkum meeting.
+                <strong>Catatan CFRouter:</strong> Model AI cerdas (DeepSeek, Qwen, Mistral, dll.) secara otomatis membersihkan draf transkrip, memperbaiki tanda baca, serta menyusun notula rapat dan ringkasan eksekutif.
               </div>
             </div>
           </div>
@@ -647,7 +1037,271 @@
                 <small>Data terstruktur lengkap</small>
               </div>
             </button>
+            <button class="export-btn export-btn-audio" data-format="audio" id="btnExportAudioRecording">
+              <i data-lucide="music"></i>
+              <div>
+                <strong>Rekaman Audio (.webm)</strong>
+                <small>Unduh file audio mentah hasil rekaman sesi</small>
+              </div>
+            </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGENT INDIVIDUAL CONFIG MODAL -->
+    <div id="agentConfigModal" class="modal-backdrop hidden">
+      <div class="modal-card modal-md">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <i data-lucide="sliders" class="icon-accent"></i>
+            <div>
+              <h3 id="agentConfigModalTitle">Kustomisasi Agen AI</h3>
+              <p class="modal-subtitle">Atur API Key & Base URL tersendiri untuk agen ini atau gunakan default sistem</p>
+            </div>
+          </div>
+          <button id="btnCloseAgentConfig" class="btn-icon modal-close" aria-label="Tutup"><i data-lucide="x"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="agent-config-summary-pill" id="agentConfigTargetPill">
+            <span class="pill-label">Target:</span>
+            <strong id="agentConfigTargetName">Transcript & Polish Agent</strong>
+          </div>
+
+          <div class="form-group checkbox-toggle-wrapper">
+            <label class="custom-checkbox">
+              <input type="checkbox" id="agentConfigUseDefault">
+              <span class="checkmark"></span>
+              <span class="checkbox-text">Gunakan Pengaturan Global Template (Default)</span>
+            </label>
+            <small class="form-hint">Saat aktif, agen ini memakai API Key & Base URL utama yang sudah dikonfigurasi di Pengaturan.</small>
+          </div>
+
+          <div id="agentCustomFields" class="agent-custom-fields-group">
+            <div class="form-group">
+              <label for="agentCustomBaseUrl">API Base URL Khusus Agen Ini</label>
+              <input type="text" id="agentCustomBaseUrl" placeholder="https://api.cfrouter.my.id/v1" autocomplete="off">
+              <small class="form-hint">Kosongkan jika ingin mengikuti endpoint default sistem.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="agentCustomApiKey">API Key Khusus Agen Ini</label>
+              <div class="input-with-action">
+                <input type="password" id="agentCustomApiKey" placeholder="sk-..." autocomplete="off">
+                <button type="button" class="btn-toggle-pwd" data-target="agentCustomApiKey">
+                  <i data-lucide="eye"></i>
+                </button>
+              </div>
+              <small class="form-hint">Gunakan API Key berbeda jika Anda ingin memisahkan kuota/akun antara transkrip dan summary.</small>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btnCancelAgentConfig" class="btn btn-secondary">Batal</button>
+          <button id="btnSaveAgentConfig" class="btn btn-primary">
+            <i data-lucide="check"></i> Simpan Pengaturan Agen
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY & INTELLIGENCE TEMP HISTORY MODAL -->
+    <div id="summaryHistoryModal" class="modal-backdrop hidden">
+      <div class="modal-card modal-lg">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <i data-lucide="archive" class="icon-accent"></i>
+            <div>
+              <h3>Riwayat Summary & Intelligence (Folder Temp)</h3>
+              <p class="modal-subtitle">Daftar ringkasan dan notula yang otomatis tersimpan sebagai file di <code>temp/summaries/</code> (bukan database)</p>
+            </div>
+          </div>
+          <div class="modal-header-actions">
+            <button id="btnOpenFolderFromModal" class="btn btn-sm btn-secondary" title="Buka folder temp di Windows Explorer">
+              <i data-lucide="folder"></i> Buka Folder Temp
+            </button>
+            <button id="btnRefreshTempSummaries" class="btn-icon" title="Segarkan Daftar"><i data-lucide="refresh-cw"></i></button>
+            <button id="btnCloseSummaryHistory" class="btn-icon modal-close" aria-label="Tutup"><i data-lucide="x"></i></button>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="temp-history-search-row">
+            <div class="search-input-wrapper">
+              <i data-lucide="search" class="icon-small text-muted"></i>
+              <input type="text" id="tempSummarySearchInput" placeholder="Cari ringkasan / notula berdasarkan judul, model, atau kata kunci..." class="form-input">
+            </div>
+            <span id="tempSummaryCountTotal" class="history-count-badge">0 Berkas</span>
+          </div>
+
+          <div id="tempSummaryListContainer" class="temp-summary-cards-grid">
+            <!-- Dynamic temp summary cards -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GEMINI AUDIO DEBUG LOGS MODAL -->
+    <div id="geminiLogsModal" class="modal-backdrop hidden">
+      <div class="modal-card modal-lg">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <i data-lucide="terminal" class="icon-accent"></i>
+            <div>
+              <h3>Log Debug Transkripsi Gemini Audio</h3>
+              <p class="modal-subtitle">Riwayat request, ukuran byte payload audio, dan response/error dari Google AI Studio (Tersimpan di <code>temp/gemini_audio.log</code>)</p>
+            </div>
+          </div>
+          <div class="modal-header-actions">
+            <button id="btnRefreshGeminiLogs" class="btn-icon" title="Segarkan Log"><i data-lucide="refresh-cw"></i></button>
+            <button id="btnCloseGeminiLogs" class="btn-icon modal-close" aria-label="Tutup"><i data-lucide="x"></i></button>
+          </div>
+        </div>
+        <div class="modal-body">
+          <pre id="geminiLogsOutputContent" class="debug-terminal-box">Memuat log...</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUDIO-IN SEPARATE TEMP HISTORY MODAL -->
+    <div id="audioInHistoryModal" class="modal-backdrop hidden">
+      <div class="modal-card modal-lg">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <i data-lucide="mic" class="icon-accent"></i>
+            <div>
+              <h3>Riwayat Transkripsi Audio-In (Folder: <code>temp/audio_in/</code>)</h3>
+              <p class="modal-subtitle">Daftar rekaman potongan transkrip suara Gemini yang tersimpan mandiri (terpisah dari riwayat summary)</p>
+            </div>
+          </div>
+          <div class="modal-header-actions">
+            <button id="btnOpenAudioInFolderFromModal" class="btn btn-sm btn-secondary" title="Buka folder temp/audio_in di Windows Explorer">
+              <i data-lucide="folder"></i> Buka Folder Audio-In
+            </button>
+            <button id="btnRefreshAudioInHistory" class="btn-icon" title="Segarkan Daftar"><i data-lucide="refresh-cw"></i></button>
+            <button id="btnCloseAudioInHistory" class="btn-icon modal-close" aria-label="Tutup"><i data-lucide="x"></i></button>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="temp-history-search-row">
+            <div class="search-input-wrapper">
+              <i data-lucide="search" class="icon-small text-muted"></i>
+              <input type="text" id="audioInSearchInput" placeholder="Cari transkrip audio berdasarkan teks, pembicara, atau model..." class="form-input">
+            </div>
+            <span id="audioInCountTotal" class="history-count-badge">0 Berkas</span>
+          </div>
+
+          <div id="audioInListContainer" class="temp-summary-cards-grid">
+            <!-- Dynamic audio-in history cards -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API USAGE & QUOTA ANALYTICS MODAL -->
+    <div id="apiUsageModal" class="modal-backdrop hidden">
+      <div class="modal-card modal-lg">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <i data-lucide="activity" class="icon-accent"></i>
+            <div>
+              <h3>Monitor Penggunaan & Limit API</h3>
+              <p class="modal-subtitle">Pelacakan kuota riil, batas RPM/RPD, dan log transaksi API untuk evaluasi batas model</p>
+            </div>
+          </div>
+          <div class="modal-header-actions">
+            <button id="btnExportApiLogsCsv" class="btn btn-sm btn-secondary" title="Unduh log transaksi API dalam format CSV">
+              <i data-lucide="download"></i> Ekspor CSV
+            </button>
+            <button id="btnClearApiUsageStats" class="btn btn-sm btn-secondary" title="Reset hitungan statistik">
+              <i data-lucide="trash-2"></i> Reset
+            </button>
+            <button id="btnCloseApiUsage" class="btn-icon modal-close" aria-label="Tutup"><i data-lucide="x"></i></button>
+          </div>
+        </div>
+        <div class="modal-body">
+          <!-- Auto-Fallback Notice Banner -->
+          <div class="info-alert api-fallback-alert">
+            <i data-lucide="shield-check" class="icon-small text-accent"></i>
+            <div>
+              <strong>Auto-Fallback Aktif:</strong>
+              <p>Jika model terkena limit (HTTP 429) atau server overload/tidak tersedia (HTTP 503), LiveVoice AI otomatis mengalihkan potongan suara ke model alternatif sehat berikutnya secara langsung tanpa henti.</p>
+            </div>
+          </div>
+
+          <!-- Model Quota & Usage Cards Grid -->
+          <div class="api-usage-section">
+            <h4 class="api-section-heading"><i data-lucide="cpu" class="icon-xs"></i> Statistik & Kuota Model Aktif</h4>
+            <div class="api-usage-summary-grid" id="apiModelStatsContainer">
+              <!-- Dynamically populated cards -->
+            </div>
+          </div>
+
+          <!-- Recent API Transaction Logs Table -->
+          <div class="api-usage-section">
+            <div class="api-logs-header-row">
+              <h4 class="api-section-heading"><i data-lucide="list" class="icon-xs"></i> Riwayat Panggilan API Terkini</h4>
+              <span id="apiLogsTotalCountBadge" class="history-count-badge">0 Panggilan</span>
+            </div>
+            <div class="api-logs-table-scroll">
+              <table class="api-logs-table">
+                <thead>
+                  <tr>
+                    <th>Waktu</th>
+                    <th>Fitur</th>
+                    <th>Model</th>
+                    <th>Status</th>
+                    <th>Latensi</th>
+                    <th>Ukuran / Token</th>
+                    <th>Pesan / Error</th>
+                  </tr>
+                </thead>
+                <tbody id="apiLogsTableBody">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DETAIL SESI TRANSKRIPSI (RIWAYAT & ARSIP) -->
+    <div id="historyDetailModal" class="modal-backdrop hidden">
+      <div class="modal-card modal-lg">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <i data-lucide="file-text" class="icon-accent"></i>
+            <div>
+              <h3 id="historyDetailTitle">Detail Sesi Transkrip</h3>
+              <p class="modal-subtitle" id="historyDetailMeta">Waktu • Durasi • Model</p>
+            </div>
+          </div>
+          <div class="modal-header-actions">
+            <button id="btnLoadHistoryToLive" class="btn btn-sm btn-primary" title="Muat sesi ini ke editor transkrip live">
+              <i data-lucide="external-link"></i> Buka di Live
+            </button>
+            <button id="btnCopyHistoryDetail" class="btn btn-sm btn-secondary" title="Salin seluruh isi teks">
+              <i data-lucide="copy"></i> Salin
+            </button>
+            <button id="btnExportHistoryDetail" class="btn btn-sm btn-secondary" title="Unduh berkas Markdown">
+              <i data-lucide="download"></i> Unduh
+            </button>
+            <button id="btnCloseHistoryDetail" class="btn-icon modal-close" aria-label="Tutup"><i data-lucide="x"></i></button>
+          </div>
+        </div>
+        <div class="modal-body history-detail-modal-body">
+          <div id="historyDetailAnalysisBox" class="history-detail-analysis-box hidden">
+            <div class="history-detail-section-title">
+              <i data-lucide="sparkles" class="icon-xs text-accent"></i>
+              <span>Ringkasan / Analisis AI</span>
+            </div>
+            <div id="historyDetailAnalysisContent" class="history-detail-analysis-content ai-markdown-output"></div>
+          </div>
+          <div class="history-detail-section-title">
+            <i data-lucide="message-square" class="icon-xs text-accent"></i>
+            <span>Percakapan & Transkrip Lengkap</span>
+          </div>
+          <div id="historyDetailSegmentsContainer" class="history-detail-segments-container"></div>
         </div>
       </div>
     </div>
@@ -656,6 +1310,7 @@
     <div id="toastContainer" class="toast-container"></div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="secrets.js" onerror="/* File lokal opsional */"></script>
+  <script src="app.js?v=20260916_live_v4"></script>
 </body>
 </html>
